@@ -8,6 +8,7 @@ contract WavePortal {
     uint256 totalWaves;
     mapping(address => uint256) public accountAccessCounter;
     mapping(address => uint256) public accountWaveCounter;
+    event Waved(address user);
 
     constructor() {
         console.log("Yo yo, I am a contract am I am smart");
@@ -16,7 +17,8 @@ contract WavePortal {
     function wave() public {
         totalWaves += 1;
         console.log("%s has waved!", msg.sender);
-        accountWaveCounter[msg.sender] = totalWaves;
+        accountWaveCounter[msg.sender]++;
+        emit Waved(msg.sender);
     }
 
     function getTotalWaves() public view returns (uint256) {
