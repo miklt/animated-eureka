@@ -13,7 +13,12 @@ contract WavePortal {
     /*
      * A little magic, Google what events are in Solidity!
      */
-    event NewWave(address indexed from, uint256 timestamp, string message);
+    event NewWave(
+        address indexed from,
+        uint256 timestamp,
+        string message,
+        bool isLucky
+    );
 
     /*
      * I created a struct here named Wave.
@@ -23,6 +28,7 @@ contract WavePortal {
         address waver; // The address of the user who waved.
         string message; // The message the user sent.
         uint256 timestamp; // The timestamp when the user waved.
+        bool isLucky;
     }
     /*
      * I declare a variable waves that lets me store an array of structs.
@@ -48,8 +54,8 @@ contract WavePortal {
          * We need to make sure the current timestamp is at least 15-minutes bigger than the last timestamp we stored
          */
         require(
-            lastWavedAt[msg.sender] + 15 minutes < block.timestamp,
-            "Wait 15m"
+            lastWavedAt[msg.sender] + 30 seconds < block.timestamp,
+            "Must wait 30 seconds before waving again."
         );
 
         /*
@@ -59,7 +65,6 @@ contract WavePortal {
         totalWaves += 1;
         console.log("%s has waved!", msg.sender);
 
-        waves.push(Wave(msg.sender, _message, block.timestamp));
         /*
          * Generate a Psuedo random number between 0 and 100
          */
@@ -70,7 +75,10 @@ contract WavePortal {
          * Set the generated, random number as the seed for the next wave
          */
         seed = randomNumber;
-        if (randomNumber < 50) {
+        bool isLucky = randomNumber < 50;
+        waves.push(Wave(msg.sender, _message, block.timestamp, isLucky));
+        console.log("com sorte: %s", isLucky);
+        if (isLucky) {
             console.log("%s won!", msg.sender);
 
             /*
@@ -85,7 +93,7 @@ contract WavePortal {
             require(success, "Failed to withdraw money from contract.");
         }
 
-        emit NewWave(msg.sender, block.timestamp, _message);
+        emit NewWave(msg.sender, block.timestamp, _message, isLucky);
     }
 
     function getAllWaves() public view returns (Wave[] memory) {
